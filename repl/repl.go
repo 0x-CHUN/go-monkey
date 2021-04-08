@@ -3,7 +3,9 @@ package repl
 import (
 	"bufio"
 	"fmt"
+	"go-monkey-interpreter/evaluator"
 	"go-monkey-interpreter/lexer"
+	"go-monkey-interpreter/object"
 	"go-monkey-interpreter/parser"
 	"io"
 )
@@ -12,8 +14,9 @@ const PROMPT = ">>>"
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 	for true {
-		fmt.Println(PROMPT)
+		fmt.Print(PROMPT)
 
 		scanned := scanner.Scan()
 		if !scanned {
@@ -28,8 +31,11 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, p.Errors())
 			continue
 		}
-		_, _ = io.WriteString(out, program.String())
-		_, _ = io.WriteString(out, "\n")
+		evaluated := evaluator.Eval(program, env)
+		if evaluated != nil {
+			_, _ = io.WriteString(out, evaluated.Inspect())
+			_, _ = io.WriteString(out, "\n")
+		}
 	}
 }
 
