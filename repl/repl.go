@@ -16,10 +16,12 @@ const PROMPT = ">>>"
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	//env := object.NewEnvironment()
 	constants := []object.Object{}
 	globals := make([]object.Object, vm.GlobalsSize)
 	symbolTable := compiler.NewSymbolTable()
+	for idx, v := range object.Builtins {
+		symbolTable.DefineBuiltin(idx, v.Name)
+	}
 	for {
 		fmt.Print(PROMPT)
 
@@ -36,12 +38,6 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, p.Errors())
 			continue
 		}
-		//evaluated := evaluator.Eval(program, env)
-		//if evaluated != nil {
-		//	_, _ = io.WriteString(out, evaluated.Inspect())
-		//	_, _ = io.WriteString(out, "\n")
-		//}
-
 		comp := compiler.NewWithState(symbolTable, constants)
 		err := comp.Compile(program)
 		if err != nil {
@@ -58,8 +54,8 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		lastPopped := machine.LastPoppedStackElem()
-		io.WriteString(out, lastPopped.Inspect())
-		io.WriteString(out, "\n")
+		_, _ = io.WriteString(out, lastPopped.Inspect())
+		_, _ = io.WriteString(out, "\n")
 	}
 }
 
