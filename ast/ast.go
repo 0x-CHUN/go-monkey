@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"go-monkey-interpreter/token"
 	"strings"
 )
@@ -266,6 +267,7 @@ type FunctionLiteral struct {
 	Token      token.Token
 	Parameters []*Identifier
 	Body       *BlockStatement
+	Name       string
 }
 
 func (f *FunctionLiteral) expressionNode() {
@@ -284,6 +286,9 @@ func (f *FunctionLiteral) String() string {
 		params = append(params, p.String())
 	}
 	out.WriteString(f.TokenLiteral())
+	if f.Name != "" {
+		out.WriteString(fmt.Sprintf("<%s>", f.Name))
+	}
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") ")
